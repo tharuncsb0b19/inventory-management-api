@@ -60,6 +60,47 @@ def get_supplier(supplierid: int, db: Session = Depends(get_db)):
     return supplier
 
 
+@app.put("/suppliers/{supplierid}", response_model=schemas.SupplierOut)
+def update_supplier(
+    supplierid: int,
+    supplier: schemas.SupplierCreate,
+    db: Session = Depends(get_db),
+):
+    db_supplier = (
+        db.query(models.Supplier)
+        .filter(models.Supplier.supplierid == supplierid)
+        .first()
+    )
+    if not db_supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+
+    db_supplier.name = supplier.name
+    db_supplier.email = supplier.email
+    db_supplier.phoneno = supplier.phoneno
+
+    db.commit()
+    db.refresh(db_supplier)
+    return db_supplier
+
+
+@app.delete("/suppliers/{supplierid}")
+def delete_supplier(
+    supplierid: int,
+    db: Session = Depends(get_db),
+):
+    db_supplier = (
+        db.query(models.Supplier)
+        .filter(models.Supplier.supplierid == supplierid)
+        .first()
+    )
+    if not db_supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+
+    db.delete(db_supplier)
+    db.commit()
+    return {"message": "Supplier deleted successfully"}
+
+
 # ---- RawMaterial endpoints ----
 
 @app.post("/rawmaterials", response_model=schemas.RawMaterialOut)
