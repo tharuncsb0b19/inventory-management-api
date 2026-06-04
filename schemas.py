@@ -18,7 +18,7 @@ class SupplierOut(SupplierBase):
     supplierid: int
 
     class Config:
-        orm_mode = True
+         from_attributes  = True
 
 
 # ----- RawMaterial Schemas -----
@@ -37,7 +37,7 @@ class RawMaterialOut(RawMaterialBase):
     materialid: int
 
     class Config:
-        orm_mode = True
+         from_attributes  = True
 
 
 # ----- Storage Schemas -----
@@ -56,7 +56,7 @@ class StorageOut(StorageBase):
     storageid: int
 
     class Config:
-        orm_mode = True
+         from_attributes  = True
 
 
 # ----- Inventory Schemas -----
@@ -75,7 +75,7 @@ class InventoryOut(InventoryBase):
     inventoryid: int
 
     class Config:
-        orm_mode = True
+        from_attributes  = True
 
 
 # ----- Order Schemas -----
@@ -94,7 +94,7 @@ class OrderOut(OrderBase):
     orderid: int
 
     class Config:
-        orm_mode = True
+         from_attributes  = True
 
 
 # ----- Report Schemas -----

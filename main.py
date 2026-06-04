@@ -1,5 +1,5 @@
-# main.py
 from typing import List
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -13,6 +13,15 @@ import schemas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Dependency to get DB session
@@ -199,6 +208,18 @@ def list_inventory(db: Session = Depends(get_db)):
     return db.query(models.Inventory).all()
 
 
+# ✅ FIX: specific route BEFORE parameterized route
+@app.get("/inventory/by-city", response_model=List[schemas.InventoryOut])
+def list_inventory_by_city(cityname: str, db: Session = Depends(get_db)):
+    inv_items = (
+        db.query(models.Inventory)
+        .join(models.Storage)
+        .filter(models.Storage.cityname == cityname)
+        .all()
+    )
+    return inv_items
+
+
 @app.get("/inventory/{inventoryid}", response_model=schemas.InventoryOut)
 def get_inventory(inventoryid: int, db: Session = Depends(get_db)):
     inv = (
@@ -209,17 +230,6 @@ def get_inventory(inventoryid: int, db: Session = Depends(get_db)):
     if inv is None:
         raise HTTPException(status_code=404, detail="Inventory item not found")
     return inv
-
-
-@app.get("/inventory/by-city", response_model=List[schemas.InventoryOut])
-def list_inventory_by_city(cityname: str, db: Session = Depends(get_db)):
-    inv_items = (
-        db.query(models.Inventory)
-        .join(models.Storage)
-        .filter(models.Storage.cityname == cityname)
-        .all()
-    )
-    return inv_items
 
 
 # ---- Order endpoints ----
